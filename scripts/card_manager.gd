@@ -3,6 +3,8 @@ extends Node2D
 # This mask is used for detecting card collisions
 const CARD_COLLISION_MASK = 1
 
+const CARD_SLOT_COLLISION_MASK = 2
+
 # --- PERFORMANCE NOTES ---
 # For better performance with many cards, consider adjusting these project settings:
 # - Project > Project Settings > Physics > Common > Physics Ticks per Second: Lower to 30-45 for card games
@@ -93,7 +95,23 @@ func begin_card_drag() -> void:
 
 # Stop dragging the current card
 func end_card_drag() -> void:
-	# Clear the active card reference
+	if active_card == null:
+		return
+		
+	var card_slot = find_card_slot_under_cursor()
+	if card_slot and card_slot.card_in_slot == false:
+		print("Placing card in slot")
+		
+		# Instead of just changing position, use the new place_card function
+		# This will reparent the card to the slot
+		card_slot.place_card(active_card)
+		active_card.get_node("Area2D/CollisionShape2D").disabled = true
+		
+		print("Card placed in slot, new parent: ", active_card.get_parent().name)
+	else:
+		active_card.position = card_start_position
+		active_card.z_index = base_z_index + active_card.get_index()
+
 	active_card = null
 
 # Find which card (if any) is under the mouse cursor
@@ -120,6 +138,33 @@ func find_card_under_cursor() -> Node2D:
 				highest_z = card.z_index
 				
 		return highest_card
+	return null
+
+# Find which card slot (if any) is under the mouse cursor
+func find_card_slot_under_cursor() -> Node2D:
+	# Use Godot's physics system to detect cards, but with optimizations
+	var space_state = get_world_2d().direct_space_state
+	var parameters = PhysicsPointQueryParameters2D.new()
+	parameters.position = get_global_mouse_position()
+	parameters.collide_with_areas = true
+	parameters.collision_mask = CARD_SLOT_COLLISION_MASK
+	# Note: max_results is not available in PhysicsPointQueryParameters2D
+	
+	# Check if we hit anything
+	var result = space_state.intersect_point(parameters)
+	if result.size() > 0:
+		return result[0].collider.get_parent()
+		# # Find the card with the highest z_index among all cards under cursor
+		# var highest_card = result[0].collider.get_parent()
+		# var highest_z = highest_card.z_index
+		
+		# for i in range(1, result.size()):
+		# 	var card = result[i].collider.get_parent()
+		# 	if card.z_index > highest_z:
+		# 		highest_card = card
+		# 		highest_z = card.z_index
+				
+		# return highest_card
 	return null
 
 # Get the width and height of a card
