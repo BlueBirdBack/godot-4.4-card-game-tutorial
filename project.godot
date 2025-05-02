@@ -14,3 +14,7 @@ config/name="godot-4.4-card-game-tutorial"
 run/main_scene="uid://cmk7epudec4x"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
+
+[debug]
+
+file_logging/enable_file_logging=true
