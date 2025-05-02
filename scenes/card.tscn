@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://bskixspsuf5c8"]
+
+[ext_resource type="Texture2D" uid="uid://dise1notoivis" path="res://assets/knight.png" id="1_d81rb"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_o5qli"]
+size = Vector2(164.5, 257)
+
+[node name="Card" type="Node2D"]
+
+[node name="CardArtwork" type="Sprite2D" parent="."]
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("1_d81rb")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("RectangleShape2D_o5qli")
